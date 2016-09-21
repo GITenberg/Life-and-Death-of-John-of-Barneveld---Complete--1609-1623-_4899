@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: TDps0jvZYnPFfI3M4O2IZ3CNL/GksltwVrtd4gO4hToxvE9I9aRim3MBixTfboQbWQDXZWprPD0YYfRE/lrrgrvlY5myevOrpwVBRfrvgW27T4RF9A3gyO4IOzo8s0gBtx2dc1k28uOzbTxKLx896TiF+NAyH/jeg3kJ+EZRDPyXZwUopQ0fzs8FAbSJILoL6zLYMyXWKuwhLzA2dXZJcvTQYOBLzFodEVxktl7Zzwzd/mmZ8fl+W5V5JdEKx2QOAi+fOA9+ZRWTSkkssT3GnoQ8k9q73sp2/z9GCQBPirRJqe9ilzrtV52qHbHpwAQ8R5jZJ4QBNZ1Jim0eK6xqa9FVH6TC1vFydEItVV2hZGJ34iD0NTuLsACW450IQox8z+oVTktG/GnW2eooO5EDNMbAff3ahaREbf8w1ExC0Y6S6A6ecsLHLc+9ZnL9nmuwz8iOykJfB+yiBoBDqB5HYBF8kEDkcLB8qfI4Up7y+lm53rv08h96Uhi86CcgaBkTWtDjITeY3jMaXNER8EcQeh+DjrOFfNfJu81UWuqki5R4CoAQgux/hlWplxrl0DswwAmLVPxHcr6ClDUAlY8PlSh5+O8TU+yGyzki9mn5jzyys1hNfoCJgYaJEQvcFSPy7SlXd7tw5dIQwnuP5VIy1Coe0hu2NQB6fO87U2cLUN4=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Life-and-Death-of-John-of-Barneveld---Complete--1609-1623-_4899
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
